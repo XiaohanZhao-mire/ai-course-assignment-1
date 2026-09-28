@@ -1,0 +1,21 @@
+[project]
+name = "gentext-app"
+version = "0.1.0"
+description = "Module 3 FastAPI project extended with Module 2 spaCy word embeddings"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.115,<1.0",
+    "uvicorn>=0.34,<1.0",
+    "spacy>=3.8.7,<3.9",
+    "en-core-web-lg",
+]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "httpx>=0.28,<1"]
+
+[tool.uv.sources]
+en-core-web-lg = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.8.0/en_core_web_lg-3.8.0-py3-none-any.whl" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -1,0 +1,26 @@
+name: Test API and Docker deployment
+on: [push, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build deployment image
+        run: docker build -t gentext-app .
+      - name: Test with the real spaCy model
+        run: |
+          docker run --rm -v "$PWD/tests:/code/tests:ro" gentext-app uv run --frozen pytest -q
+      - name: Start deployment and query it over HTTP
+        run: |
+          docker run -d --name assignment-api -p 8000:8000 gentext-app
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:8000/; then break; fi
+            sleep 2
+          done
+          python3 scripts/smoke_test.py
+      - name: Container logs
+        if: always()
+        run: docker logs assignment-api || true
